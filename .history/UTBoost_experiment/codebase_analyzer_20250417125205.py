@@ -153,8 +153,6 @@ class CodebaseAnalyzer:
     - sklearn.svm.base._sparse_fit (Implementation function called by test)
     """
             
-            print("\nGenerated Prompt:")
-            print(prompt)
             return prompt
             
         except Exception as e:
@@ -257,8 +255,6 @@ class CodebaseAnalyzer:
     sklearn.svm.tests.test_svm.test_sparse_fit_sv_empty: 693-740
     """
             
-            print("\nGenerated Prompt:")
-            print(prompt)
             return prompt
             
         except Exception as e:
@@ -337,8 +333,6 @@ class CodebaseAnalyzer:
     - sklearn/svm/base.py (Implements core SVM functionality referenced in issue)
     """
 
-            print("\nGenerated Prompt:")
-            print(prompt)
             return prompt
             
         except Exception as e:

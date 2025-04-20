@@ -55,41 +55,19 @@ class ContextGenerator:
         """
         return self.analyzer.derive_repo_info(task_info)
         
-    def get_llm_response(self, prompt: str, model: str = "gpt-4-turbo-preview") -> str:
+    def get_llm_response(self, prompt: str, model: str = "gpt-3.5-turbo") -> str:
         """
         Get response from OpenAI's LLM.
         
         Args:
             prompt: The prompt to send to the LLM
-            model: The OpenAI model to use (default: gpt-4-turbo-preview with 128k context window)
+            model: The OpenAI model to use (default: gpt-3.5-turbo)
             
         Returns:
             The LLM's response
         """
         if not self.client:
             raise ValueError("OpenAI API key not provided")
-            
-        # Calculate token count (rough estimation)
-        # Average of 4 characters per token for English text
-        estimated_tokens = len(prompt) // 4
-        
-        # Maximum tokens for the model (leaving room for response)
-        max_tokens = 120000  # Slightly below the 128k limit to be safe
-        
-        if estimated_tokens > max_tokens:
-            print(f"\nWarning: Prompt exceeds token limit ({estimated_tokens} tokens)")
-            print("Truncating prompt to fit within limits...")
-            
-            # Truncate the prompt while trying to maintain structure
-            truncated_prompt = prompt[:max_tokens * 4]  # Convert tokens back to characters
-            
-            # Try to end at a reasonable point (e.g., after a complete sentence)
-            last_period = truncated_prompt.rfind('.')
-            if last_period != -1:
-                truncated_prompt = truncated_prompt[:last_period + 1]
-            
-            print(f"Truncated to approximately {len(truncated_prompt) // 4} tokens")
-            prompt = truncated_prompt
             
         print("\n=== Sending prompt to LLM ===")
         print(prompt)
@@ -278,18 +256,23 @@ def main():
     generator = ContextGenerator(github_token=github_token, openai_api_key=openai_api_key)
     
     try:
-        # Get instance ID from command line or use default
-        import sys
-        if len(sys.argv) > 1:
-            instance_id = sys.argv[1]
-        else:
-            instance_id = "sympy__sympy-20916"  # Default instance ID
-            
-        print(f"\nProcessing instance: {instance_id}")
+        # Process the specific task file
+        task_file = "UTBoost_experiment/tasks/sympy__sympy-20916/passed_agent_passes.json"
+        print(f"\nProcessing task from: {task_file}")
         
         # Load and process the task
-        task_data = generator.load_task(instance_id)
-        print(f"\nProcessing task ID: {instance_id}")
+        with open(task_file, 'r') as f:
+            tasks = json.load(f)
+            
+        if not isinstance(tasks, list):
+            raise ValueError("Expected a list of tasks in the JSON file")
+            
+        if not tasks:
+            raise ValueError("No tasks found in the file")
+            
+        # Take the first task
+        task_data = tasks[0]
+        print(f"\nProcessing task ID: {task_data.get('task_id', 'unknown')}")
         
         # Print task data structure for debugging
         print("\nTask data structure:")
@@ -297,8 +280,9 @@ def main():
         
         result = generator.process_task(task_data)
         
-        # Save results with instance ID in filename
-        output_file = f"task_analysis_results_{instance_id}.json"
+        # Save results with task ID in filename
+        task_id = task_data.get('task_id', 'sympy-20916')
+        output_file = f"task_analysis_results_{task_id}.json"
         with open(output_file, 'w') as f:
             json.dump(result, f, indent=2)
         

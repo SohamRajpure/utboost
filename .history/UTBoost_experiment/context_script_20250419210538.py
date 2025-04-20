@@ -55,13 +55,13 @@ class ContextGenerator:
         """
         return self.analyzer.derive_repo_info(task_info)
         
-    def get_llm_response(self, prompt: str, model: str = "gpt-4-turbo-preview") -> str:
+    def get_llm_response(self, prompt: str, model: str = "gpt-3.5-turbo") -> str:
         """
         Get response from OpenAI's LLM.
         
         Args:
             prompt: The prompt to send to the LLM
-            model: The OpenAI model to use (default: gpt-4-turbo-preview with 128k context window)
+            model: The OpenAI model to use (default: gpt-3.5-turbo)
             
         Returns:
             The LLM's response
@@ -74,7 +74,7 @@ class ContextGenerator:
         estimated_tokens = len(prompt) // 4
         
         # Maximum tokens for the model (leaving room for response)
-        max_tokens = 120000  # Slightly below the 128k limit to be safe
+        max_tokens = 16000  # Slightly below the 16385 limit to be safe
         
         if estimated_tokens > max_tokens:
             print(f"\nWarning: Prompt exceeds token limit ({estimated_tokens} tokens)")

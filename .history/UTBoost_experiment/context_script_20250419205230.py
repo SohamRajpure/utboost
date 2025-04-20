@@ -55,41 +55,19 @@ class ContextGenerator:
         """
         return self.analyzer.derive_repo_info(task_info)
         
-    def get_llm_response(self, prompt: str, model: str = "gpt-4-turbo-preview") -> str:
+    def get_llm_response(self, prompt: str, model: str = "gpt-3.5-turbo") -> str:
         """
         Get response from OpenAI's LLM.
         
         Args:
             prompt: The prompt to send to the LLM
-            model: The OpenAI model to use (default: gpt-4-turbo-preview with 128k context window)
+            model: The OpenAI model to use (default: gpt-3.5-turbo)
             
         Returns:
             The LLM's response
         """
         if not self.client:
             raise ValueError("OpenAI API key not provided")
-            
-        # Calculate token count (rough estimation)
-        # Average of 4 characters per token for English text
-        estimated_tokens = len(prompt) // 4
-        
-        # Maximum tokens for the model (leaving room for response)
-        max_tokens = 120000  # Slightly below the 128k limit to be safe
-        
-        if estimated_tokens > max_tokens:
-            print(f"\nWarning: Prompt exceeds token limit ({estimated_tokens} tokens)")
-            print("Truncating prompt to fit within limits...")
-            
-            # Truncate the prompt while trying to maintain structure
-            truncated_prompt = prompt[:max_tokens * 4]  # Convert tokens back to characters
-            
-            # Try to end at a reasonable point (e.g., after a complete sentence)
-            last_period = truncated_prompt.rfind('.')
-            if last_period != -1:
-                truncated_prompt = truncated_prompt[:last_period + 1]
-            
-            print(f"Truncated to approximately {len(truncated_prompt) // 4} tokens")
-            prompt = truncated_prompt
             
         print("\n=== Sending prompt to LLM ===")
         print(prompt)
